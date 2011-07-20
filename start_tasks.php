@@ -2,7 +2,7 @@
 if(!isset($_GET['id'])){
   //crawl the table with tasks
   $sql = <<<EOQ
-            SELECT id, url FROM tasklist WHERE executed <> 1;  
+            SELECT id, url FROM tasklist WHERE executed <> 1 LIMIT 4;  
 EOQ;
 
   $query = mysql_query($sql);
