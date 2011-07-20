@@ -18,7 +18,7 @@ EOQ;
     */  
     $cmd .= ' >/dev/null 2>&1 &';
     $p = exec($cmd);
-    mysql_query("UPDATE `oe_back`.`tasklist` SET `executed` = '1' WHERE `tasklist`.`id` =".$taskid.";");
+    mysql_query("UPDATE `tasklist` SET `executed` = '1' WHERE `tasklist`.`id` =".$taskid.";");
     
   }
 }
