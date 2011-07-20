@@ -11,14 +11,14 @@ EOQ;
   while ($data = tep_db_fetch_array($query)) {
     $taskid = (int)$data['id'];
     $url = $data['url'];    
-    $cmd = sprintf("/usr/bin/wget -qO /dev/null --no-check-certificate '%s?id=%d'", tep_href_link($url), $taskid);
+    $cmd = sprintf("/usr/bin/wget -qO /dev/null --no-check-certificate '%s?id=%d'", tep_href_link('start_tasks.php'), $taskid);
     /*
     if (isset($_GET['force']))
       $cmd .= '&force=1';
     */  
     $cmd .= ' >/dev/null 2>&1 &';
     $p = exec($cmd);
-    mysql_query("UPDATE `tasklist` SET `executed` = '1' WHERE `tasklist`.`id` =".$taskid.";");
+    mysql_query("UPDATE `oe_back`.`tasklist` SET `executed` = '1' WHERE `tasklist`.`id` =".$taskid.";");
     
   }
 }

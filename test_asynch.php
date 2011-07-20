@@ -60,7 +60,7 @@ header("Location: test_asynch.php?message=".$exit_message);
 else{
   if(isset($_GET['message'])) echo htmlspecialchars($_GET['message'])."<br />";
   echo '
-    <form action="?action=importing_into_db&target=products&script=start_tasks.php" method="post" enctype="multipart/form-data">
+    <form action="?action=importing_into_db&target=products&script=my_import.php" method="post" enctype="multipart/form-data">
     <input type="text" name="manufacturer" />
     <input type="file" name="ufile" />  
     <input type="submit" name="submit1" value="Execute sample task"/>
