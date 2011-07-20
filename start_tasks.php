@@ -40,6 +40,16 @@ EOQ;
   $url = $result['url'];
   $file_name = $result['files'];
   
+  $action = $get_array['action'];
+  $target = $get_array['target'];  
+  $function = $get_array['func'];
+  
+  
+  include($url);
+  $function();  
+  // depending of the implementation of the functions you are calling:
+  // $function($post_array['manufacturer'],$post_array['some_stuff'],$file_name)
+  
   mysql_query("
               INSERT INTO `result_table` (
               `id` ,
