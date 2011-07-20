@@ -10,24 +10,12 @@ $script = isset($HTTP_GET_VARS['script']) ? $HTTP_GET_VARS['script'] : '';
  */
  
 if($action == 'execute_cron_job'){
-  //crawl the table with tasks
-  $sql = <<<EOQ
-            SELECT * FROM tasklist LIMIT 1;  
-EOQ;
+  ob_start();
 
-  $query = mysql_query($sql);
-  $task = array();
-  $result = mysql_fetch_assoc($query);
-  
-  $post_array = unserialize($result['post']);
-  $get_array = unserialize($result['get']); 
-  $url = $result['url'];
-  $file_name = $result['files'];
-  
-  include("start_task.php");
-  
-  //do the task 
-  
+  //do tasks
+  require ("start_tasks.php");
+
+  ob_end_flush();
 }
 
 /**
@@ -72,7 +60,7 @@ header("Location: test_asynch.php?message=".$exit_message);
 else{
   if(isset($_GET['message'])) echo htmlspecialchars($_GET['message'])."<br />";
   echo '
-    <form action="?action=importing_into_db&target=products&script=importing.php" method="post" enctype="multipart/form-data">
+    <form action="?action=importing_into_db&target=products&script=start_tasks.php" method="post" enctype="multipart/form-data">
     <input type="text" name="manufacturer" />
     <input type="file" name="ufile" />  
     <input type="submit" name="submit1" value="Execute sample task"/>
