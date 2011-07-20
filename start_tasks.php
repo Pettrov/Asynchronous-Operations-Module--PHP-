@@ -41,7 +41,7 @@ EOQ;
   $file_name = $result['files'];
   
   mysql_query("
-              INSERT INTO `oe_back`.`result_table` (
+              INSERT INTO `result_table` (
               `id` ,
               `value`
               )
