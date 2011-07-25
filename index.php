@@ -54,7 +54,6 @@ function controller($action='show') {
     // display the list of all jobs
     require 'view/test_job_list.php';
     break;
-  }
 
   // returns status of a job
   case 'status':
@@ -63,7 +62,6 @@ function controller($action='show') {
     // display the job status
     require 'view/test_job_status.php';
     break;
-  }
 
   // returns the result of a job
   case 'result':
