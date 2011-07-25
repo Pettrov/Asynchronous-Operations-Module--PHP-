@@ -10,7 +10,8 @@ class AsyncTest extends PHPUnit_Framework_TestCase {
   protected function setUp() {
     // create a mock storage to simplify testing
     $this->storage = $this->getMock('Storage', array('add', 'get', 'all', 'pop', 'status', 'result'));
-    $this->async = new AsyncManager($storage);
+    $this->assertNotNull($this->storage);
+    $this->async = new AsyncManager($this->storage);
   }  
   
 
