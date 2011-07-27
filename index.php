@@ -28,7 +28,11 @@ function controller($action='show') {
       )));
     
     // return success
-    require 'view/test_add_job_success.php';
+    if($job_id){
+      require 'view/test_add_job_success.php';
+    } else{
+      echo 'Error: The job was not added to the queue';
+    }        
     break;
   
   // execute one item from the queue
@@ -75,4 +79,3 @@ function controller($action='show') {
 
 // handle the specified action
 controller($_GET['action']);
-
