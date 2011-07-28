@@ -11,3 +11,12 @@ function async_add_job(HTTPJob $job_obj){
   $manager->add_job($job_obj);
   
 }
+
+function async_execute($id){
+  //executing some jobs
+  $store = new PDOStorage();
+  $manager = new AsyncManager($store);  
+  
+  $manager->execute_all_jobs();
+  
+}

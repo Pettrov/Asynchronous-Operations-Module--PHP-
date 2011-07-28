@@ -3,7 +3,11 @@
 // PDO Storage implementation
 
 class PDOStorage implements Storage {
+  public $get, $post, $files;
+  public $file, $function, $arguments;
+  
   public function __construct(){
+  
   
   }
   
@@ -21,11 +25,9 @@ class PDOStorage implements Storage {
           echo 'Connection failed: ' . $e->getMessage();
       }
       
-      /* 
-      foreach($dbh->query('SELECT * from foo') as $row) {
-	      print_r($row);
-      }
-      */
+      //TODO Serialize the data in $job here
+
+
       $exit = $dbh->query('INSERT INTO foo');
       $dbh = null;
       return $exit;  
@@ -38,6 +40,34 @@ class PDOStorage implements Storage {
   
   // retrieves all job id's
   public function all(){
+
+      //PDO
+      $dsn = 'mysql:dbname=testdb;host=127.0.0.1'; //db type, dbname, host
+      $user = 'foo'; // username
+      $password = 'bar'; // password
+
+      try {
+          $dbh = new PDO($dsn, $user, $password, array(PDO::ATTR_PERSISTENT => true));
+          $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      } catch (PDOException $e) {
+          echo 'Connection failed: ' . $e->getMessage();
+      }
+      
+       
+      foreach($dbh->query('SELECT * from foo') as $row) {
+	      $this->get = $row[1];
+	      $this->post = $row[2];
+	      $this->files = $row[3];
+	      $this->file = $row[4];
+ 	      $this->function = $row[5];	      	      	      
+	      $this->arguments = $row[6]; 	      
+      }
+      
+      //TODO deserialize arguments before returning them
+      
+      $dbh = null;
+      
+      return $this;    
   
   }
   

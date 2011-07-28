@@ -12,4 +12,8 @@ class AsyncManager {
     return $this->storage->add($job);
   }
 
+  public function execute_all_jobs() {
+    return $this->storage->all();
+  }
+  
 }
