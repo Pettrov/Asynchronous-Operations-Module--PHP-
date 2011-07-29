@@ -13,10 +13,15 @@ class PDOStorage implements Storage {
   
   // adds a job to the storage and returns the id
   public function add(Job $job){
-      //PDO Storage Engine
-      $dsn = 'mysql:dbname=testdb;host=127.0.0.1'; //db type, dbname, host
-      $user = 'foo'; // username
-      $password = 'bar'; // password
+
+      //Serialize the global arrays here
+      $job->get = serialize($job->get);
+      $job->post = serialize($job->post);
+      $job->files = serialize($job->files);
+    
+      $dsn = 'mysql:dbname=oe_back;host=127.0.0.1'; //db type, dbname, host
+      $user = 'root'; // username
+      $password = '123456'; // password
 
       try {
           $dbh = new PDO($dsn, $user, $password, array(PDO::ATTR_PERSISTENT => true));
@@ -25,11 +30,25 @@ class PDOStorage implements Storage {
           echo 'Connection failed: ' . $e->getMessage();
       }
       
-      //TODO Serialize the data in $job here
+      $sql = <<<EOQ
+          INSERT INTO `tasklist` (
+          `id` ,
+          `url` ,
+          `func` ,
+          `arguments` ,                    
+          `get` ,
+          `post` ,
+          `files`
+          )
+          VALUES (
+          NULL , '{$job->file}', '{$job->func}', '{$job->arguments}', '{$job->get}', '{$job->post}', '{$job->get}'
+          );  
+EOQ;
 
-
-      $exit = $dbh->query('INSERT INTO foo');
+      $dbh->query($sql);
+      $exit = $dbh->lastInsertId();
       $dbh = null;
+      
       return $exit;  
   }
   
@@ -38,13 +57,17 @@ class PDOStorage implements Storage {
   
   }
   
-  // retrieves all job id's
+  // retrieves all jobs
   public function all(){
 
-      //PDO
-      $dsn = 'mysql:dbname=testdb;host=127.0.0.1'; //db type, dbname, host
-      $user = 'foo'; // username
-      $password = 'bar'; // password
+  }
+  
+  // retrieves the next job from the queue
+  public function pop($job){
+
+      $dsn = 'mysql:dbname=oe_back;host=127.0.0.1'; //db type, dbname, host
+      $user = 'root'; // username
+      $password = '123456'; // password
 
       try {
           $dbh = new PDO($dsn, $user, $password, array(PDO::ATTR_PERSISTENT => true));
@@ -53,26 +76,27 @@ class PDOStorage implements Storage {
           echo 'Connection failed: ' . $e->getMessage();
       }
       
+      //crawl the table with tasks and fetch the last on top
+      $sql = <<<EOQ
+            SELECT * FROM tasklist WHERE executed <> 1 ORDER BY id DESC LIMIT 1;
+EOQ;
        
-      foreach($dbh->query('SELECT * from foo') as $row) {
-	      $this->get = $row[1];
-	      $this->post = $row[2];
-	      $this->files = $row[3];
-	      $this->file = $row[4];
- 	      $this->function = $row[5];	      	      	      
-	      $this->arguments = $row[6]; 	      
+      foreach($dbh->query($sql) as $row) {
+        $job->job_id = $row['id'];
+	      $job->file = $row['url'];
+ 	      $job->func = $row['func'];	      	      	      
+	      $job->arguments = $row['arguments']; 
+	            
+	      $job->get = unserialize($row['get']);
+	      $job->post = unserialize($row['post']);
+	      $job->files = unserialize($row['files']);
+	      
+	      $job->job_status = $row['executed'];	      
       }
       
-      //TODO deserialize arguments before returning them
-      
       $dbh = null;
-      
-      return $this;    
-  
-  }
-  
-  // retrieves the next job from the queue
-  public function pop(){
+
+      return $job;   
   
   }
   

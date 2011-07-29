@@ -20,12 +20,15 @@ function controller($action='show') {
 
   // add a job to the queue
   case 'add_job':
+  
     // HTTPJob implements Job interface and provides catching of $_GET, $_POST and $_FILES
-    $job_id = async_add_job(new HTTPJob(array(
+    $job = new HTTPJob();
+    $job->add(array(
       'file' => 'worker.php', // the file that the job should include
-      'function' => 'do_work', // the function to execute
+      'func' => 'do_work', // the function to execute
       'arguments' => 'dummy', // arbitrary data that will be provided to the function
-      )));
+      ));    
+    $job_id = async_add_job($job);
     
     // return success
     if($job_id){
@@ -51,7 +54,20 @@ function controller($action='show') {
     require 'view/test_execute_success.php';
     break;
 
-  // returns list of all jobs
+// execute one job on top of the queue
+  case 'pop_job':
+  
+    $job = new HTTPJob();
+    $result = async_execute_pop($job);
+    $status = $job->execute($result);
+    // return success
+    if($status)
+      require 'view/test_execute_success.php';
+    else
+      echo 'Error: The job was not executed successfully';  
+    break;
+
+// returns list of all jobs
   case 'list':
     $list = async_list_jobs();
   

@@ -6,9 +6,14 @@ interface Job{
 class HTTPJob implements Job{
 
   public $get, $post, $files;
-  public $file, $function, $arguments;
+  public $job_id, $file, $function, $arguments, $job_status;
   
-  public function __construct($args) {
+  public function __construct() {
+    //Constructor free of catching concrete data
+  }
+
+
+  public function add($args) {
     $this->file = $args['file'];
     $this->func = $args['func'];
     $this->arguments = $args['arguments'];        
@@ -19,25 +24,21 @@ class HTTPJob implements Job{
     $this->files = $_FILES;
     
     // TODO copy the files to a secure location (outside /tmp )
-  }
-
-  public function execute() {
-    /*
-    //     restores POST and GET and FILES
-    $get = $_GET;
-    $_GET = $this->get;
-   ...
-    $nested->execute();
-    ...
-    $_GET = $get;
-    */
+}
+  
+  public function execute($stuff) {
+    
+    $simple_job = new SimpleJob();
+    return $simple_job->execute($stuff);
   }
 
 }
 
 class SimpleJob implements Job{
-	function execute(){
+	function execute($job_obj){
 	//for simple jobs
+	  include($job_obj->file);
+	  return call_user_func($job_obj->func);
 	}
 }
 

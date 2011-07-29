@@ -8,15 +8,15 @@ function async_add_job(HTTPJob $job_obj){
   $manager = new AsyncManager($store);
   
   
-  $manager->add_job($job_obj);
+  return $manager->add_job($job_obj);
   
 }
 
-function async_execute($id){
-  //executing some jobs
+function async_execute_pop($id){
+  //executing last job on stack
   $store = new PDOStorage();
   $manager = new AsyncManager($store);  
   
-  $manager->execute_all_jobs();
+  return $manager->execute_pop_job();
   
 }

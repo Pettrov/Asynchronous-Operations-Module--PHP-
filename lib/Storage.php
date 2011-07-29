@@ -1,8 +1,7 @@
 <?php
 
 // interface that provides simplified access to storage systems for the purposes of async library
-interface Storage {
-  
+interface Storage {  
   // adds a job to the storage and returns the id
   public function add(Job $job);
   
@@ -13,7 +12,7 @@ interface Storage {
   public function all();
   
   // retrieves the next job from the queue
-  public function pop();
+  public function pop($job);
   
   // retrieves the status of a job
   public function status($id);
