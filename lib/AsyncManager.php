@@ -1,10 +1,10 @@
 <?php
-
+//Facade
 class AsyncManager {
 
   private $storage = null;
 
-  public function __construct($storage) {
+  function __construct($storage) {
     $this->storage = $storage;
   }
 
@@ -12,8 +12,19 @@ class AsyncManager {
     return $this->storage->add($job);
   }
 
-  public function execute_pop_job() {
-    return $this->storage->pop($job);
+  public function execute_first_job() {
+    $job = $this->storage->first();
+    return $this->execute($job);
+  }
+  
+  public function execute($job) {
+  
+    /**
+    * Takes care of not executing 2 jobs simultaneously
+    */  
+  
+    
+    return $job->execute($job);    
   }
   
 }

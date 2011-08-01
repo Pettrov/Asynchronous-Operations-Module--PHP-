@@ -12,7 +12,7 @@ interface Storage {
   public function all();
   
   // retrieves the next job from the queue
-  public function pop($job);
+  public function first();
   
   // retrieves the status of a job
   public function status($id);

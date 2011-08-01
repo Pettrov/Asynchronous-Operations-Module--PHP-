@@ -3,28 +3,27 @@
 // PDO Storage implementation
 
 class PDOStorage implements Storage {
+  private $dsn, $user, $password;
   public $get, $post, $files;
   public $file, $function, $arguments;
   
-  public function __construct(){
-  
-  
+  function __construct()
+  {
+      include 'config/storage.php';
+      $this->dsn = $DSN;
+      $this->user = $User;
+      $this->password = $Pass;
   }
   
-  // adds a job to the storage and returns the id
-  public function add(Job $job){
-
-      //Serialize the global arrays here
-      $job->get = serialize($job->get);
-      $job->post = serialize($job->post);
-      $job->files = serialize($job->files);
+  public function add(Job $job)
+  {
+    // adds a job to the storage and returns the id
+  
+      //Serialize the data here
+      $job = serialize($job);
     
-      $dsn = 'mysql:dbname=oe_back;host=127.0.0.1'; //db type, dbname, host
-      $user = 'root'; // username
-      $password = '123456'; // password
-
       try {
-          $dbh = new PDO($dsn, $user, $password, array(PDO::ATTR_PERSISTENT => true));
+          $dbh = new PDO($this->dsn, $this->user, $this->password, array(PDO::ATTR_PERSISTENT => true));
           $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
       } catch (PDOException $e) {
           echo 'Connection failed: ' . $e->getMessage();
@@ -33,15 +32,12 @@ class PDOStorage implements Storage {
       $sql = <<<EOQ
           INSERT INTO `tasklist` (
           `id` ,
-          `url` ,
-          `func` ,
-          `arguments` ,                    
-          `get` ,
-          `post` ,
-          `files`
+          `job` ,
+          `status` ,
+          `result`
           )
           VALUES (
-          NULL , '{$job->file}', '{$job->func}', '{$job->arguments}', '{$job->get}', '{$job->post}', '{$job->get}'
+          NULL , '$job', 0, NULL
           );  
 EOQ;
 
@@ -52,25 +48,22 @@ EOQ;
       return $exit;  
   }
   
-  // retrieves a job by it's id
-  public function get($id){
-  
+  public function get($id)
+  {
+    // retrieves a job by it's id  
   }
   
-  // retrieves all jobs
-  public function all(){
-
+  public function all()
+  {
+    // retrieves all jobs
   }
   
-  // retrieves the next job from the queue
-  public function pop($job){
-
-      $dsn = 'mysql:dbname=oe_back;host=127.0.0.1'; //db type, dbname, host
-      $user = 'root'; // username
-      $password = '123456'; // password
-
+  public function first()
+  {
+    // retrieves the next job from the queue
+    
       try {
-          $dbh = new PDO($dsn, $user, $password, array(PDO::ATTR_PERSISTENT => true));
+          $dbh = new PDO($this->dsn, $this->user, $this->password, array(PDO::ATTR_PERSISTENT => true));
           $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
       } catch (PDOException $e) {
           echo 'Connection failed: ' . $e->getMessage();
@@ -78,35 +71,25 @@ EOQ;
       
       //crawl the table with tasks and fetch the last on top
       $sql = <<<EOQ
-            SELECT * FROM tasklist WHERE executed <> 1 ORDER BY id DESC LIMIT 1;
+            SELECT * FROM tasklist WHERE status <> 4 ORDER BY id ASC LIMIT 1;
 EOQ;
        
       foreach($dbh->query($sql) as $row) {
-        $job->job_id = $row['id'];
-	      $job->file = $row['url'];
- 	      $job->func = $row['func'];	      	      	      
-	      $job->arguments = $row['arguments']; 
-	            
-	      $job->get = unserialize($row['get']);
-	      $job->post = unserialize($row['post']);
-	      $job->files = unserialize($row['files']);
-	      
-	      $job->job_status = $row['executed'];	      
+        $job = unserialize($row['job']);
       }
       
       $dbh = null;
-
       return $job;   
-  
+      
   }
   
-  // retrieves the status of a job
-  public function status($id){
-  
+  public function status($id)
+  {
+    // retrieves the status of a job      
   }
   
-  // retrieves the result of a job
-  public function result($id){
-  
+  public function result($id)
+  {
+    // retrieves the result of a job
   }
 }

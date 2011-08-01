@@ -10,6 +10,17 @@ require 'lib/async.php';
 
 function controller($action='show') {
   
+  $director = Director::getInstance("config/config.php");
+  $manager = $director->get_manager();
+  
+  try{  
+    $job = $director->build('HTTPJob');
+  }  
+  catch (Exception $e) {
+    echo $e->getMessage();
+  }
+  
+  
   switch ($action) {
 
   // show the test page
@@ -22,13 +33,12 @@ function controller($action='show') {
   case 'add_job':
   
     // HTTPJob implements Job interface and provides catching of $_GET, $_POST and $_FILES
-    $job = new HTTPJob();
     $job->add(array(
       'file' => 'worker.php', // the file that the job should include
       'func' => 'do_work', // the function to execute
       'arguments' => 'dummy', // arbitrary data that will be provided to the function
       ));    
-    $job_id = async_add_job($job);
+    $job_id = $manager->add_job($job);
     
     // return success
     if($job_id){
@@ -55,11 +65,8 @@ function controller($action='show') {
     break;
 
 // execute one job on top of the queue
-  case 'pop_job':
-  
-    $job = new HTTPJob();
-    $result = async_execute_pop($job);
-    $status = $job->execute($result);
+  case 'first_job':
+    $status = $manager->execute_first_job();
     // return success
     if($status)
       require 'view/test_execute_success.php';
@@ -85,7 +92,7 @@ function controller($action='show') {
 
   // returns the result of a job
   case 'result':
-    $result = async_status($_GET['job']);
+    $result = $manager->get_result($_GET['job']);
   
     // display the result
     require 'view/test_job_result.php';

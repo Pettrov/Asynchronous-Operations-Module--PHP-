@@ -23,5 +23,16 @@ class AsyncManagerTest extends PHPUnit_Framework_TestCase {
     
     $this->assertEquals(1, $this->async->add_job("job"));
   }
+  /*
+  public function testExecJob() {
+    $this->storage
+      ->expects($this->once())
+      ->method('pop')
+      ->with($this->identicalTo("job"))
+      ->will($this->returnValue(1));
+    
+    $this->assertEquals(1, $this->async->execute_pop_job("job"));
+  }
+  */  
 
 }

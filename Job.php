@@ -1,6 +1,6 @@
 <?php
 interface Job{
-	function execute();
+	function execute($job_obj);
 }
 
 class HTTPJob implements Job{
@@ -14,6 +14,7 @@ class HTTPJob implements Job{
 
 
   public function add($args) {
+    //TODO Remove POST GET and FILES retrieving and make it as Decorator
     $this->file = $args['file'];
     $this->func = $args['func'];
     $this->arguments = $args['arguments'];        
@@ -24,32 +25,39 @@ class HTTPJob implements Job{
     $this->files = $_FILES;
     
     // TODO copy the files to a secure location (outside /tmp )
-}
+  }
   
-  public function execute($stuff) {
+  public function execute($job_obj) {
+    $_GET = $job_obj->get;
+    $_POST = $job_obj->post;
+    $_FILES = $job_obj->files;
     
-    $simple_job = new SimpleJob();
-    return $simple_job->execute($stuff);
+    $method_job = new MethodJob();
+    return $method_job->execute($job_obj);
   }
 
 }
 
-class SimpleJob implements Job{
+class MethodJob implements Job{
 	function execute($job_obj){
-	//for simple jobs
+	//load a file and execute a method
+	  var_dump($_GET,$job_obj);
+	  die();
 	  include($job_obj->file);
-	  return call_user_func($job_obj->func);
+	  $function_call = call_user_func($job_obj->func);
+	  return $function_call;	
 	}
 }
 
-class MethodJob implements Job{
-	function execute(){
-	//load a file and execute a method
+
+class SimpleJob implements Job{
+	function execute($job_obj){
+	//for simple jobs
 	}
 }
 
 class ClassJob implements Job{
-	function execute(){
+	function execute($job_obj){
 	//load a class and execute a method
 	}
 }
