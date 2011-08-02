@@ -44,6 +44,41 @@ class FileStorage implements Storage {
   public function get($id)
   {
     // retrieves a job by it's id  
+    // retrieves the first job in the queue
+    $source = $this->storage_file;
+
+    $done = 0;
+    $sh = fopen($source, 'r+');
+
+    $line = array(); // a row containing one job
+    $modified = array(); // array to keep all jobs
+
+// Find the first Not started job ('N') and change its flag to 'S' (Started job)
+    while (!feof($sh)) {
+      $line = fgetcsv($sh, 0, "#");
+      if ($line[2]=='N' and !$done and $line[0]==$id) {
+          $my_array = $line;
+          $line[2] = 'S'; //S stands for 'Started job'
+          $done = 1;
+      }
+      $modified[] = $line;
+    }
+    fclose($sh);
+
+// Write the new data to the file    
+    $fp = fopen($this->storage_file, 'w');
+    foreach($modified as $row){
+      @fputcsv($fp, $row, "#");
+    }  
+    fclose($fp);    
+
+// Unserialize the actual job and return it
+    $job = unserialize($my_array[1]);
+    
+    if(!done) return false; //if no 'N' job was found
+      
+    return $job;     
+        
   }
   
   public function all()

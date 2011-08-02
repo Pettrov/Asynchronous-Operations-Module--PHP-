@@ -12,6 +12,15 @@ class AsyncManager {
     return $this->storage->add($job);
   }
 
+  public function async_execute($id) {
+    $job = $this->storage->get($id);
+    if($job){
+      return $this->execute($job);
+    }
+    else
+      return false;  
+  }
+  
   public function execute_first_job() {
     $job = $this->storage->first();
     if($job){

@@ -3,5 +3,5 @@
   *** Storage engine ***
   */
   
-//$storage = 'pdo';
-$storage = 'file';
+$storage = 'pdo';
+//$storage = 'file';

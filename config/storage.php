@@ -1,5 +1,5 @@
 <?php
-$DSN = 'mysql:dbname=oe_back;host=127.0.0.1'; //db type, dbname, host
+$DSN = 'mysql:dbname=asynch;host=127.0.0.1'; //db type, dbname, host
 $User = 'root'; // username
 $Pass = '123456'; // password 
 

@@ -8,7 +8,7 @@
 // the actual library implementation
 require 'lib/async.php';
 
-function controller($action='show') {
+function controller($action='show', $job_count=1, $job_request=null) {
   
   $director = Director::getInstance("config/config.php");
   $manager = $director->get_manager();
@@ -50,10 +50,16 @@ function controller($action='show') {
   
   // execute one item from the queue
   case 'execute':
-    $status = async_execute(1);
+    if($job_request)
+      $status = $manager->async_execute($job_request);
+    else 
+      $status = $manager->execute_first_job();      
   
     // return success
-    require 'view/test_execute_success.php';
+    if($status)
+      require 'view/test_execute_success.php';
+    else
+      echo 'No waiting jobs found!';  
     break;
 
   // execute all items from the queue
@@ -71,7 +77,7 @@ function controller($action='show') {
     if($status)
       require 'view/test_execute_success.php';
     else
-      echo 'Error: The job was not executed successfully';  
+      echo 'No waiting jobs found!';  
     break;
 
 // returns list of all jobs
@@ -84,21 +90,27 @@ function controller($action='show') {
 
   // returns status of a job
   case 'status':
-    $status = async_status($_GET['job']);
-  
-    // display the job status
-    require 'view/test_job_status.php';
+    if($job_request){  
+      $status = async_status($job_request);
+    
+      require 'view/test_job_status.php';
+    }
+    else
+      echo "You have to provide job ID in order to complete your request";    
     break;
 
   // returns the result of a job
   case 'result':
-    $result = $manager->get_result($_GET['job']);
-  
-    // display the result
-    require 'view/test_job_result.php';
+    if($job_request){
+      $result = $manager->get_result($job_request);
+    
+      require 'view/test_job_result.php';
+    }
+    else
+      echo "You have to provide job ID in order to complete your request";
     break;
   }
 }
 
 // handle the specified action
-controller($_GET['action']);
+controller($_GET['action'], $_GET['count'], $_GET['job_id']);
