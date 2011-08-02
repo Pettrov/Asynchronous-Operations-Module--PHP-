@@ -14,7 +14,11 @@ class AsyncManager {
 
   public function execute_first_job() {
     $job = $this->storage->first();
-    return $this->execute($job);
+    if($job){
+      return $this->execute($job);
+    }
+    else
+      return false;  
   }
   
   public function execute($job) {
@@ -22,9 +26,20 @@ class AsyncManager {
     /**
     * Takes care of not executing 2 jobs simultaneously
     */  
-  
     
-    return $job->execute($job);    
+    $fp = fopen("file_storage/tmp/lock.txt", "r+");
+          
+    if (flock($fp, LOCK_EX)) { // do an exclusive lock
+        fwrite($fp, "Write some locking info\n");
+        
+        $execute = $job->execute($job);    
+
+        flock($fp, LOCK_UN); // release the lock
+    }
+    
+    fclose($fp);
+    
+    return $execute;    
   }
   
 }

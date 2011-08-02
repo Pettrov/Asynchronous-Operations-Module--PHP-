@@ -79,7 +79,11 @@ EOQ;
       }
       
       $dbh = null;
-      return $job;   
+      
+      if($job)
+        return $job;   
+      else
+        return false;  
       
   }
   
