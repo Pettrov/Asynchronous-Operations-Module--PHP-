@@ -3,6 +3,7 @@
 // PDO Storage implementation
 
 class PDOStorage implements Storage {
+
   private $dsn, $user, $password;
   public $get, $post, $files;
   public $file, $function, $arguments;
@@ -14,11 +15,16 @@ class PDOStorage implements Storage {
       $this->user = $User;
       $this->password = $Pass;
   }
-  
+
+
+
+/**
+  ****************************************************
+  *  Adds a job to the storage and returns the id
+  ****************************************************
+  */  
   public function add(Job $job)
   {
-    // adds a job to the storage and returns the id
-  
       //Serialize the data here
       $job = serialize($job);
     
@@ -47,11 +53,16 @@ EOQ;
       
       return $exit;  
   }
-  
+
+
+
+/**
+  ****************************************************
+  *  Retrieves a job by it's id  
+  ****************************************************
+  */  
   public function get($id)
   {
-    // retrieves a job by it's id  
-    
       try {
           $dbh = new PDO($this->dsn, $this->user, $this->password, array(PDO::ATTR_PERSISTENT => true));
           $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -83,18 +94,50 @@ EOQ;
         return $job;   
       else
         return false;  
-    
   }
-  
+
+
+
+/**
+  ****************************************************
+  *  Retrieves all jobs
+  ****************************************************
+  */  
   public function all()
   {
-    // retrieves all jobs
+      try {
+          $dbh = new PDO($this->dsn, $this->user, $this->password, array(PDO::ATTR_PERSISTENT => true));
+          $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      } catch (PDOException $e) {
+          echo 'Connection failed: ' . $e->getMessage();
+      }
+      
+      //crawl the table with tasks and fetch all
+      $sql = <<<EOQ
+            SELECT * FROM tasklist ORDER BY id ASC;
+EOQ;
+      $tasks = array(); 
+      foreach($dbh->query($sql) as $row) {
+        $tasks[] = $row;
+      }
+
+      $dbh = null;
+      
+      if($tasks)
+        return $tasks;   
+      else
+        return false;  
   }
-  
+
+
+
+/**
+  ****************************************************
+  *  Retrieves the first job in the queue
+  ****************************************************
+  */    
   public function first()
   {
-    // retrieves the next job from the queue
-    
       try {
           $dbh = new PDO($this->dsn, $this->user, $this->password, array(PDO::ATTR_PERSISTENT => true));
           $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -111,7 +154,7 @@ EOQ;
         $job = unserialize($row['job']);
       }
 
-//Set the status flag to 1 (started executing)
+      //Set the status flag to 1 (started executing)
       if($job){
         $sql = <<<EOQ
         UPDATE `tasklist` SET `status` = '1' WHERE `id` = {$row['id']}
@@ -126,16 +169,66 @@ EOQ;
         return $job;   
       else
         return false;  
-      
   }
   
+
+
+/**
+  ****************************************************
+  *  Retrieves the status of a job      
+  ****************************************************
+  */  
   public function status($id)
   {
-    // retrieves the status of a job      
-  }
+      try {
+          $dbh = new PDO($this->dsn, $this->user, $this->password, array(PDO::ATTR_PERSISTENT => true));
+          $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      } catch (PDOException $e) {
+          echo 'Connection failed: ' . $e->getMessage();
+      }
+      
+      //crawl the table with tasks and fetch the one that is requested
+      $sql = <<<EOQ
+            SELECT * FROM tasklist WHERE id = '$id' LIMIT 1;
+EOQ;
+
+      $status = 9; //default status for 'job not found'
+      foreach($dbh->query($sql) as $row) {
+        $status = $row['status'];
+      }
+      
+      $dbh = null;
+      return $status;   
+   }
   
+  
+  
+/**
+  ****************************************************
+  *  Retrieves the result of a job
+  ****************************************************
+  */   
   public function result($id)
   {
-    // retrieves the result of a job
+      try {
+          $dbh = new PDO($this->dsn, $this->user, $this->password, array(PDO::ATTR_PERSISTENT => true));
+          $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      } catch (PDOException $e) {
+          echo 'Connection failed: ' . $e->getMessage();
+      }
+      
+      //crawl the table with tasks and fetch the one that is requested
+      $sql = <<<EOQ
+            SELECT * FROM tasklist WHERE id = '$id' LIMIT 1;
+EOQ;
+
+      $result = false; //default result for 'job not found'
+      foreach($dbh->query($sql) as $row) {
+        $result = $row['result'];
+      }
+      
+      $dbh = null;
+      return $result;     
   }
+  
 }

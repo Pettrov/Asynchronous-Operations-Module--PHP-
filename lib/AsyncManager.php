@@ -21,6 +21,14 @@ class AsyncManager {
       return false;  
   }
   
+  public function async_status($id){
+    return $this->storage->status($id);
+  }
+
+  public function get_result($id){    
+    return $this->storage->result($id);
+  }
+    
   public function execute_first_job() {
     $job = $this->storage->first();
     if($job){
@@ -28,6 +36,10 @@ class AsyncManager {
     }
     else
       return false;  
+  }
+  
+  public function async_list_jobs(){
+    return $this->storage->all();
   }
   
   public function execute($job) {

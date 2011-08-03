@@ -5,6 +5,7 @@
 
 */
 
+
 // the actual library implementation
 require 'lib/async.php';
 
@@ -23,13 +24,15 @@ function controller($action='show', $job_count=1, $job_request=null) {
   
   switch ($action) {
 
-  // show the test page
+
+// show the test page
   case 'show':
   default:
     require 'view/index.php';
     break;
 
-  // add a job to the queue
+
+// add a job to the queue
   case 'add_job':
   
     // HTTPJob implements Job interface and provides catching of $_GET, $_POST and $_FILES
@@ -47,8 +50,9 @@ function controller($action='show', $job_count=1, $job_request=null) {
       echo 'Error: The job was not added to the queue';
     }        
     break;
+
   
-  // execute one item from the queue
+// execute one item from the queue
   case 'execute':
     if($job_request)
       $status = $manager->async_execute($job_request);
@@ -62,13 +66,15 @@ function controller($action='show', $job_count=1, $job_request=null) {
       echo 'No waiting jobs found!';  
     break;
 
-  // execute all items from the queue
+
+// execute all items from the queue
   case 'execute_all':
     $status = async_execute_all();
   
     // return success
     require 'view/test_execute_success.php';
     break;
+
 
 // execute one job on top of the queue
   case 'first_job':
@@ -80,30 +86,31 @@ function controller($action='show', $job_count=1, $job_request=null) {
       echo 'No waiting jobs found!';  
     break;
 
+
 // returns list of all jobs
   case 'list':
-    $list = async_list_jobs();
+    $list = $manager->async_list_jobs();
   
     // display the list of all jobs
     require 'view/test_job_list.php';
     break;
 
-  // returns status of a job
+
+// returns status of a job
   case 'status':
     if($job_request){  
-      $status = async_status($job_request);
-    
+      $status = $manager->async_status($job_request);
       require 'view/test_job_status.php';
     }
     else
       echo "You have to provide job ID in order to complete your request";    
     break;
 
-  // returns the result of a job
+
+// returns the result of a job
   case 'result':
     if($job_request){
       $result = $manager->get_result($job_request);
-    
       require 'view/test_job_result.php';
     }
     else
@@ -112,5 +119,7 @@ function controller($action='show', $job_count=1, $job_request=null) {
   }
 }
 
+
 // handle the specified action
 controller($_GET['action'], $_GET['count'], $_GET['job_id']);
+?>

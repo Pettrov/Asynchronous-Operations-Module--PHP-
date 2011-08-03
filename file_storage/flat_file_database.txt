@@ -1,1 +1,0 @@
-O:7:"HTTPJob":9:{s:3:"get";a:4:{s:6:"action";s:7:"add_job";s:6:"target";s:8:"products";s:6:"script";s:13:"my_import.php";s:4:"func";s:14:"InsertProducts";}s:4:"post";a:0:{}s:5:"files";a:0:{}s:6:"job_id";N;s:4:"file";s:10:"worker.php";s:8:"function";N;s:9:"arguments";s:5:"dummy";s:10:"job_status";N;s:4:"func";s:7:"do_work";}
