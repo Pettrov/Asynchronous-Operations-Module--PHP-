@@ -41,8 +41,7 @@ class HTTPJob implements Job{
 class MethodJob implements Job{
 	function execute($job_obj){
 	//load a file and execute a method
-	  var_dump($_GET,$job_obj);
-	  die();
+	  return $job_obj; //for debugging return job_obj instead of true
 	  include($job_obj->file);
 	  $function_call = call_user_func($job_obj->func);
 	  return $function_call;	

@@ -61,32 +61,23 @@ class FileStorage implements Storage {
     $sh = fopen($source, 'r+');
 
     $line = array(); // a row containing one job
-    $modified = array(); // array to keep all jobs
 
-    // Find the first Not started job '0' and change its flag to '1' (Started job)
+    // Find the first Not started job '0'
     while (!feof($sh)) {
       $line = fgetcsv($sh, 0, "#");
       if ($line[2]=='0' and !$done and $line[0]==$id) {
           $my_array = $line;
-          $line[2] = '1'; //1 stands for 'Started job'
           $done = 1;
       }
-      $modified[] = $line;
     }
     fclose($sh);
-
-    // Write the new data to the file    
-    $fp = fopen($this->storage_file, 'w');
-    foreach($modified as $row){
-      @fputcsv($fp, $row, "#");
-    }  
-    fclose($fp);    
+    
 
     // Unserialize the actual job and return it
     $job = unserialize($my_array[1]);
     
     if(!$done) return false; //if no '0' job was found
-      
+  
     return $job;     
   }
   
@@ -97,14 +88,26 @@ class FileStorage implements Storage {
   *  Retrieves all jobs
   ****************************************************
   */      
-  public function all()
+  public function all($exec_only=false)
   {
     $source = $this->storage_file;
     $sh = fopen($source, 'r+');
     $modified = array(); // array to keep all jobs
 
     while (!feof($sh)) {
-      $modified[] = fgetcsv($sh, 0, "#");
+
+      $line = fgetcsv($sh, 0, "#");
+      
+      if($exec_only){      
+        if ($line[2]=='0' or $line[2]=='2') {
+              $line[1] = unserialize($line[1]);
+              $modified[] = $line;
+        }      
+      }
+      else{
+        $modified[] = $line;
+      }    
+        
     }
 
     fclose($sh);
@@ -121,7 +124,7 @@ class FileStorage implements Storage {
   *  Retrieves the first job in the queue
   ****************************************************
   */  
-  public function first()
+  public function first(&$id)
   {
     $source = $this->storage_file;
 
@@ -129,30 +132,22 @@ class FileStorage implements Storage {
     $sh = fopen($source, 'r+');
 
     $line = array(); // a row containing one job
-    $modified = array(); // array to keep all jobs
 
-    // Find the first Not started job '0' and change its flag to '1' (Started job)
+    // Find the first Not started job '0'
     while (!feof($sh)) {
       $line = fgetcsv($sh, 0, "#");
       if ($line[2]=='0' and !$done) {
           $my_array = $line;
-          $line[2] = '1'; //1 stands for 'Started job'
           $done = 1;
       }
-      $modified[] = $line;
     }
     fclose($sh);
-
-    // Write the new data to the file    
-    $fp = fopen($this->storage_file, 'w');
-    foreach($modified as $row){
-      @fputcsv($fp, $row, "#");
-    }  
-    fclose($fp);    
 
     // Unserialize the actual job and return it
     $job = unserialize($my_array[1]);
     
+    $id = $my_array[0]; //passing the $id by reference
+
     if(!$done) return false; //if no '0' job was found
       
     return $job;     
@@ -216,6 +211,78 @@ class FileStorage implements Storage {
 
     if(!$done) $my_result = false; //if no job was found
     return $my_result; 
-        
   }
+
+
+
+/**
+  ****************************************************
+  *  Sets the status of a job
+  ****************************************************
+  */  
+  public function set_status($id, $status)
+  {
+    $source = $this->storage_file;
+
+    $sh = fopen($source, 'r+');
+
+    $line = array(); // a row containing one job
+    $modified = array(); // array to keep all jobs
+
+    // Find the first Not started job '0' and change its flag to '1' (Started job)
+    while (!feof($sh)) {
+      $line = fgetcsv($sh, 0, "#");
+      if ($line[0]==$id) {
+          $line[2] = $status;
+      }
+      $modified[] = $line;
+    }
+    fclose($sh);
+
+    // Write the new data to the file    
+    $fp = fopen($this->storage_file, 'w');
+    foreach($modified as $row){
+      @fputcsv($fp, $row, "#");
+    }  
+    fclose($fp);    
+
+    return true; 
+  }
+
+
+
+/**
+  ****************************************************
+  *  Sets the result of a job
+  ****************************************************
+  */  
+  public function set_result($id, $result)
+  {
+    $source = $this->storage_file;
+
+    $sh = fopen($source, 'r+');
+
+    $line = array(); // a row containing one job
+    $modified = array(); // array to keep all jobs
+
+    // Find the first Not started job '0' and change its flag to '1' (Started job)
+    while (!feof($sh)) {
+      $line = fgetcsv($sh, 0, "#");
+      if ($line[0]==$id) {
+          $line[3] = $result;
+      }
+      $modified[] = $line;
+    }
+    fclose($sh);
+
+    // Write the new data to the file    
+    $fp = fopen($this->storage_file, 'w');
+    foreach($modified as $row){
+      @fputcsv($fp, $row, "#");
+    }  
+    fclose($fp);    
+
+    return true; 
+  }
+  
 }

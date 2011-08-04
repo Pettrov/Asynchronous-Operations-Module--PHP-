@@ -12,11 +12,17 @@ interface Storage {
   public function all();
   
   // retrieves the next job from the queue
-  public function first();
+  public function first(&$id); //the $id is empty, passing by reference to get the id later
   
   // retrieves the status of a job
   public function status($id);
   
   // retrieves the result of a job
   public function result($id);
+  
+  // sets the status flag of a job
+  public function set_status($id, $status);
+  
+  // sets the result field of a job
+  public function set_result($id, $result);    
 }

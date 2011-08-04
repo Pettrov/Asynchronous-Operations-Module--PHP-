@@ -63,16 +63,18 @@ function controller($action='show', $job_count=1, $job_request=null) {
     if($status)
       require 'view/test_execute_success.php';
     else
-      echo 'No waiting jobs found!';  
+      echo 'No jobs for execution found.';  
     break;
 
 
 // execute all items from the queue
   case 'execute_all':
-    $status = async_execute_all();
+    $status = $manager->async_execute_all();
   
     // return success
-    require 'view/test_execute_success.php';
+    if($status)
+      require 'view/test_execute_success_all.php';
+    else echo "No jobs for execution found."  ;
     break;
 
 
@@ -81,7 +83,7 @@ function controller($action='show', $job_count=1, $job_request=null) {
     $status = $manager->execute_first_job();
     // return success
     if($status)
-      require 'view/test_execute_success.php';
+      require 'view/test_execute_success_firstjob.php';
     else
       echo 'No waiting jobs found!';  
     break;

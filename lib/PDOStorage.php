@@ -58,7 +58,7 @@ EOQ;
 
 /**
   ****************************************************
-  *  Retrieves a job by it's id  
+  *  Retrieves a job by its id  
   ****************************************************
   */  
   public function get($id)
@@ -79,15 +79,6 @@ EOQ;
         $job = unserialize($row['job']);
       }
       
-//Set the status flag to 1 (started executing)
-      if($job){
-        $sql = <<<EOQ
-        UPDATE `tasklist` SET `status` = '1' WHERE `id` = {$row['id']}
-EOQ;
-
-        $dbh->query($sql);
-      }
-      
       $dbh = null;
       
       if($job)
@@ -103,7 +94,7 @@ EOQ;
   *  Retrieves all jobs
   ****************************************************
   */  
-  public function all()
+  public function all($exec_only=false)
   {
       try {
           $dbh = new PDO($this->dsn, $this->user, $this->password, array(PDO::ATTR_PERSISTENT => true));
@@ -113,16 +104,26 @@ EOQ;
       }
       
       //crawl the table with tasks and fetch all
-      $sql = <<<EOQ
-            SELECT * FROM tasklist ORDER BY id ASC;
+      if($exec_only){
+        $sql = <<<EOQ
+               SELECT * FROM tasklist WHERE status IN (0, 2) ORDER BY id ASC;
 EOQ;
-      $tasks = array(); 
+
+      }
+      else{
+        $sql = <<<EOQ
+               SELECT * FROM tasklist ORDER BY id ASC;
+EOQ;
+
+      }
+
+      $tasks = array(); // array of full info tasks
       foreach($dbh->query($sql) as $row) {
+        $row[1] = unserialize($row['job']);
         $tasks[] = $row;
       }
 
       $dbh = null;
-      
       if($tasks)
         return $tasks;   
       else
@@ -136,7 +137,7 @@ EOQ;
   *  Retrieves the first job in the queue
   ****************************************************
   */    
-  public function first()
+  public function first(&$id)
   {
       try {
           $dbh = new PDO($this->dsn, $this->user, $this->password, array(PDO::ATTR_PERSISTENT => true));
@@ -154,15 +155,10 @@ EOQ;
         $job = unserialize($row['job']);
       }
 
-      //Set the status flag to 1 (started executing)
       if($job){
-        $sql = <<<EOQ
-        UPDATE `tasklist` SET `status` = '1' WHERE `id` = {$row['id']}
-EOQ;
-
-        $dbh->query($sql);
+        $this->set_status($row['id'], 1); //Set the status to 'Started execution'
       }
-            
+      $id = $row['id']; //passing the $id by reference      
       $dbh = null;
       
       if($job)
@@ -230,5 +226,62 @@ EOQ;
       $dbh = null;
       return $result;     
   }
+  
+  
+  
+/**
+  ****************************************************
+  *  Set the status flag of a job by its id
+  ****************************************************
+  */   
+  public function set_status($id, $status)
+  {
+      try {
+          $dbh = new PDO($this->dsn, $this->user, $this->password, array(PDO::ATTR_PERSISTENT => true));
+          $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      } catch (PDOException $e) {
+          echo 'Connection failed: ' . $e->getMessage();
+      }
+      
+      //Set the status flag to 1 (started executing)
+
+      $sql = <<<EOQ
+      UPDATE `tasklist` SET `status` = '$status' WHERE `id` = '$id' ;
+EOQ;
+
+      $result = $dbh->query($sql);
+      
+      $dbh = null;
+      
+      return $result;     
+  }  
+  
+  
+  
+/**
+  ****************************************************
+  *  Write a result for a job by its id
+  ****************************************************
+  */     
+  public function set_result($id, $result)
+  {
+      try {
+          $dbh = new PDO($this->dsn, $this->user, $this->password, array(PDO::ATTR_PERSISTENT => true));
+          $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      } catch (PDOException $e) {
+          echo 'Connection failed: ' . $e->getMessage();
+      }
+      
+      //Set the status flag to 1 (started executing)
+
+      $sql = <<<EOQ
+      UPDATE `tasklist` SET `result` = '$result' WHERE `id` = '$id' ;
+EOQ;
+
+      $result = $dbh->query($sql);
+      
+      $dbh = null;
+      return $result;     
+  }  
   
 }
