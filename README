@@ -1,0 +1,1 @@
+This module distributes heavy load of operations to a database and helps with their asynchronus execution.
